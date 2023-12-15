@@ -1,0 +1,10 @@
+logs
+*.log
+npm-debug.log*
+node_modules
+.npm
+.next
+.config
+.cache
+cache
+.breakpoints
