@@ -1,7 +1,62 @@
-import type { NextPage } from 'next'
-import Head from 'next/head'
-import Image from 'next/image'
-import styles from '../styles/Home.module.css'
+import type { NextPage } from "next";
+import Head from "next/head";
+import Image from "next/image";
+import styles from "../styles/Home.module.css";
+import { type ServiceSurface } from "../server";
+import { WebSocketClientTransport } from "@replit/river/transport/ws/client";
+import { createClient } from "@replit/river";
+import WebSocket from "isomorphic-ws";
+import { bindLogger, setLevel } from "@replit/river/logging";
+import { useEffect, useState } from "react";
+
+const useRiverClient = (id: string) => {
+  const [client, setClient] = useState<ClientType | null>(null);
+  useEffect(() => {
+    bindLogger(console.log);
+    setLevel("info");
+    const websocketUrl = `wss://${window.location.hostname}:9000`;
+    const transport = new WebSocketClientTransport(
+      async () => new WebSocket(websocketUrl),
+      id,
+      "SERVER",
+    );
+
+    const client = createClient<ServiceSurface>(transport, "SERVER");
+    setClient(() => client);
+    return () => {
+      transport.close();
+    };
+  }, []);
+  return client;
+};
+
+const RiverComponent = ({ id }: { id: string }) => {
+  const [count, setCount] = useState(0);
+  const client = useRiverClient(id);
+
+  useEffect(() => {
+    if (!client) return;
+
+    (async () => {
+      const [subscription] = await client.subscribable.value.subscribe({});
+      for await (const value of subscription) {
+        if (value.ok) {
+          setCount(value.payload.result);
+        }
+      }
+    })();
+  }, [client]);
+
+  return (
+    <div className={styles.card}>
+      <h2>{id}</h2>
+      <p>count: {count}</p>
+      <button onClick={() => client?.subscribable.add.rpc({ n: 1 })}>
+        increment
+      </button>
+    </div>
+  );
+};
 
 const Home: NextPage = () => {
   return (
@@ -13,52 +68,15 @@ const Home: NextPage = () => {
       </Head>
 
       <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to Next.js on Replit!
-        </h1>
-
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.tsx</code>
-        </p>
-
+        <h2 className={styles.title}>Next.js + River + Replit</h2>
         <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h2>Documentation &rarr;</h2>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h2>Learn &rarr;</h2>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/canary/examples"
-            className={styles.card}
-          >
-            <h2>Examples &rarr;</h2>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://docs.replit.com/category/deployments"
-            className={styles.card}
-          >
-            <h2>Deploy &rarr;</h2>
-            <p>
-              After you are happy with this app, deploy it on Replit!
-            </p>
-          </a>
+          <RiverComponent id="client1" />
+          <RiverComponent id="client2" />
         </div>
       </main>
 
       <footer className={styles.footer}>
-        <a
-          href="/__repl"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <a href="/__repl" target="_blank" rel="noopener noreferrer">
           Built on
           <span className={styles.logo}>
             <Image src="/replit.svg" alt="Replit Logo" width={20} height={18} />
@@ -67,7 +85,8 @@ const Home: NextPage = () => {
         </a>
       </footer>
     </div>
-  )
-}
+  );
+};
 
-export default Home
+export default Home;
+type ClientType = ReturnType<typeof createClient<ServiceSurface>>;

@@ -3,23 +3,30 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --port 3000 --hostname 0.0.0.0",
+    "dev": "tsx server/index.ts & next dev --port 3000 --hostname 0.0.0.0",
     "build": "next build",
     "start": "next start --port 3000 --hostname 0.0.0.0",
     "lint": "next lint"
   },
   "dependencies": {
+    "@replit/river": "^0.10.2",
+    "@sinclair/typebox": "^0.31.28",
+    "isomorphic-ws": "^5.0.0",
     "next": "^14.0.1",
     "react": "^18.2.0",
     "react-dom": "18.2.0",
-    "tailwindcss": "^3.3.5"
+    "tailwindcss": "^3.3.5",
+    "ws": "^8.15.1",
+    "wscat": "^5.2.0"
   },
   "devDependencies": {
     "@types/node": "^20.8.10",
     "@types/react": "^18.2.14",
     "@types/react-dom": "^18.2.6",
+    "@types/ws": "^8.5.10",
     "eslint": "^8.44.0",
     "eslint-config-next": "^14.0.1",
+    "tsx": "^4.6.2",
     "typescript": "^5.1.6"
   }
 }
