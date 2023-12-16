@@ -50,9 +50,12 @@ const RiverComponent = ({ id }: { id: string }) => {
   return (
     <div className={styles.card}>
       <h2>{id}</h2>
-      <p>count: {count}</p>
-      <button onClick={() => client?.subscribable.add.rpc({ n: 1 })}>
-        increment
+      <p>Count: {count}</p>
+      <button
+        className={styles.button}
+        onClick={() => client?.subscribable.add.rpc({ n: 1 })}
+      >
+        Increment
       </button>
     </div>
   );
