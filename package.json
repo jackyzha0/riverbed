@@ -3,14 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "tsx server/index.ts & next dev --port 3000 --hostname 0.0.0.0",
+    "dev": "npm run server & npm run app",
+    "server": "bun server/index.ts",
+    "app": "next dev --port 3000 --hostname 0.0.0.0",
     "build": "next build",
     "start": "next start --port 3000 --hostname 0.0.0.0",
     "lint": "next lint"
   },
   "dependencies": {
-    "@replit/river": "^0.10.2",
-    "@sinclair/typebox": "^0.31.28",
+    "@replit/river": "^0.12.5",
+    "@sinclair/typebox": "^0.32.8",
     "isomorphic-ws": "^5.0.0",
     "next": "^14.0.1",
     "react": "^18.2.0",
@@ -24,9 +26,9 @@
     "@types/react": "^18.2.14",
     "@types/react-dom": "^18.2.6",
     "@types/ws": "^8.5.10",
+    "bun": "^1.0.29",
     "eslint": "^8.44.0",
     "eslint-config-next": "^14.0.1",
-    "tsx": "^4.6.2",
     "typescript": "^5.1.6"
   }
 }

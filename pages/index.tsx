@@ -10,11 +10,11 @@ import { bindLogger, setLevel } from "@replit/river/logging";
 import { useEffect, useState } from "react";
 
 const useRiverClient = (id: string) => {
-  const [client, setClient] = useState<ClientType | null>(null);
+  const [ctx, setCtx] = useState<[ClientType, WebSocketClientTransport] | []>([]);
   useEffect(() => {
     bindLogger(console.log);
     setLevel("info");
-    const websocketUrl = `wss://${window.location.hostname}:9000`;
+    const websocketUrl = `ws://${window.location.hostname}:9000`;
     const transport = new WebSocketClientTransport(
       async () => new WebSocket(websocketUrl),
       id,
@@ -22,30 +22,39 @@ const useRiverClient = (id: string) => {
     );
 
     const client = createClient<ServiceSurface>(transport, "SERVER");
-    setClient(() => client);
+    setCtx(() => [client, transport]);
     return () => {
       transport.close();
     };
-  }, []);
-  return client;
+  }, [id]);
+  return ctx;
 };
 
 const RiverComponent = ({ id }: { id: string }) => {
   const [count, setCount] = useState(0);
-  const client = useRiverClient(id);
+  const [client, transport] = useRiverClient(id);
 
   useEffect(() => {
     if (!client) return;
 
-    (async () => {
-      const [subscription] = await client.subscribable.value.subscribe({});
-      for await (const value of subscription) {
-        if (value.ok) {
-          setCount(value.payload.result);
+    let close: () => void | undefined = undefined
+    transport.addEventListener('sessionStatus', async (evt) => {
+      if (evt.status === 'connect') {
+        setCount(0)
+        const [subscription, closeHandler] = await client.subscribable.value.subscribe({});
+        close = closeHandler
+        for await (const value of subscription) {
+          if (value.ok) {
+            setCount(value.payload.result);
+          }
         }
+      } else {
+        close()
       }
-    })();
-  }, [client]);
+    });
+
+    return close
+  }, [client, transport]);
 
   return (
     <div className={styles.card}>
