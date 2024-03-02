@@ -8,6 +8,7 @@ import { createClient } from "@replit/river";
 import WebSocket from "isomorphic-ws";
 import { bindLogger, setLevel } from "@replit/river/logging";
 import { useEffect, useState } from "react";
+import { nanoid } from 'nanoid';
 
 const useRiverClient = (id: string) => {
   const [ctx, setCtx] = useState<[ClientType, WebSocketClientTransport] | []>([]);
@@ -35,7 +36,7 @@ const RiverComponent = ({ id }: { id: string }) => {
   const [client, transport] = useRiverClient(id);
 
   useEffect(() => {
-    if (!client) return;
+    if (!client || !transport) return;
 
     let close: () => void | undefined = undefined
     transport.addEventListener('sessionStatus', async (evt) => {
@@ -58,7 +59,7 @@ const RiverComponent = ({ id }: { id: string }) => {
 
   return (
     <div className={styles.card}>
-      <h2>{id}</h2>
+      <h2 suppressHydrationWarning>{id}</h2>
       <p>Count: {count}</p>
       <button
         className={styles.button}
@@ -81,9 +82,9 @@ const Home: NextPage = () => {
 
       <main className={styles.main}>
         <h2 className={styles.title}>Next.js + River + Replit</h2>
+        <p>Open a new tab and watch them sync :)</p>
         <div className={styles.grid}>
-          <RiverComponent id="client1" />
-          <RiverComponent id="client2" />
+          <RiverComponent id={`client-${nanoid(4)}`} />
         </div>
       </main>
 

@@ -11,9 +11,10 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@replit/river": "^0.12.5",
+    "@replit/river": "^0.12.6",
     "@sinclair/typebox": "^0.32.8",
     "isomorphic-ws": "^5.0.0",
+    "nanoid": "^5.0.6",
     "next": "^14.0.1",
     "react": "^18.2.0",
     "react-dom": "18.2.0",
