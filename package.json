@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "npm run server & npm run app",
+    "dev": "npm run app & npm run server",
     "server": "bun server/index.ts",
     "app": "next dev --port 3000 --hostname 0.0.0.0",
     "build": "next build",
@@ -11,7 +11,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@replit/river": "^0.12.6",
+    "@replit/river": "^0.14.0",
     "@sinclair/typebox": "^0.32.8",
     "isomorphic-ws": "^5.0.0",
     "nanoid": "^5.0.6",

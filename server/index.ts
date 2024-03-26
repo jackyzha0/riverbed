@@ -11,7 +11,7 @@ setLevel("info");
 
 // start websocket server on port 3001
 const httpServer = http.createServer();
-const port = 9000;
+const port = 3001;
 const wss = new WebSocketServer({ server: httpServer });
 const transport = new WebSocketServerTransport(wss, "SERVER");
 export const server = createServer(transport, serviceDefs);
