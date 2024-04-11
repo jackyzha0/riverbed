@@ -15,7 +15,8 @@ const useRiverClient = (id: string) => {
   useEffect(() => {
     bindLogger(console.log);
     setLevel("info");
-    const websocketUrl = `wss://${window.location.hostname}:9000`;
+    // const websocketUrl = `wss://${window.location.hostname}:9000`;
+    const websocketUrl = `ws://${window.location.hostname}:3001`;
     const transport = new WebSocketClientTransport(
       async () => new WebSocket(websocketUrl),
       id,
