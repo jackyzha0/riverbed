@@ -8,10 +8,12 @@ import { createClient } from "@replit/river";
 import WebSocket from "isomorphic-ws";
 import { bindLogger, setLevel } from "@replit/river/logging";
 import { useEffect, useState } from "react";
-import { nanoid } from 'nanoid';
+import { nanoid } from "nanoid";
 
 const useRiverClient = (id: string) => {
-  const [ctx, setCtx] = useState<[ClientType, WebSocketClientTransport] | []>([]);
+  const [ctx, setCtx] = useState<[ClientType, WebSocketClientTransport] | []>(
+    [],
+  );
   useEffect(() => {
     bindLogger(console.log);
     setLevel("info");
@@ -37,13 +39,14 @@ const RiverComponent = ({ id }: { id: string }) => {
   useEffect(() => {
     if (!client || !transport) return;
 
-    let close: () => void | undefined = undefined
-    transport.addEventListener('sessionStatus', async (evt) => {
-      if (evt.status === 'connect') {
+    let close: (() => void) | undefined = undefined;
+    transport.addEventListener("sessionStatus", async (evt) => {
+      if (evt.status === "connect") {
         // setup state + listeners
-        setCount(0)
-        const [subscription, closeHandler] = await client.subscribable.value.subscribe({});
-        close = closeHandler
+        setCount(0);
+        const [subscription, closeHandler] =
+          await client.subscribable.value.subscribe({});
+        close = closeHandler;
         for await (const value of subscription) {
           if (value.ok) {
             setCount(value.payload.result);
@@ -51,13 +54,14 @@ const RiverComponent = ({ id }: { id: string }) => {
         }
       } else {
         // cleanup stale listeners
-        close()
+        close?.();
       }
     });
 
-    return close
+    return close;
   }, [client, transport]);
 
+  // Client-side type checking from server-side definitions!
   return (
     <div className={styles.card}>
       <h2 suppressHydrationWarning>{id}</h2>

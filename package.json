@@ -11,7 +11,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@replit/river": "^0.14.0",
+    "@replit/river": "^0.16.1",
     "@sinclair/typebox": "^0.32.8",
     "isomorphic-ws": "^5.0.0",
     "nanoid": "^5.0.6",
