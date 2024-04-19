@@ -15,7 +15,6 @@ const useRiverClient = (id: string) => {
   useEffect(() => {
     bindLogger(console.log);
     setLevel("info");
-    // const websocketUrl = `wss://${window.location.hostname}:9000`;
     const websocketUrl = `ws://${window.location.hostname}:3001`;
     const transport = new WebSocketClientTransport(
       async () => new WebSocket(websocketUrl),
@@ -38,7 +37,7 @@ const RiverComponent = ({ id }: { id: string }) => {
   useEffect(() => {
     if (!client || !transport) return;
 
-    let close: () => void | undefined = undefined
+    let close: (() => void) | undefined = undefined
     transport.addEventListener('sessionStatus', async (evt) => {
       if (evt.status === 'connect') {
         // setup state + listeners
@@ -52,7 +51,7 @@ const RiverComponent = ({ id }: { id: string }) => {
         }
       } else {
         // cleanup stale listeners
-        close()
+        close?.()
       }
     });
 

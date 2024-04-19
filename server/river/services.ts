@@ -1,14 +1,14 @@
-import { ServiceBuilder, Ok, buildServiceDefs } from "@replit/river";
+import { ServiceSchema, Ok, Procedure } from "@replit/river";
 import { Type } from "@sinclair/typebox";
 import { Observable } from "./observable";
 
-export const SubscribableServiceConstructor = () =>
-  ServiceBuilder.create("subscribable")
-    .initialState({
+export const SubscribableService = ServiceSchema
+  .define({
+    initializeState: () => ({
       count: new Observable<number>(0),
-    })
-    .defineProcedure("add", {
-      type: "rpc",
+    }),
+  }, {
+    add: Procedure.rpc({
       input: Type.Object({ n: Type.Number() }),
       output: Type.Object({ result: Type.Number() }),
       errors: Type.Never(),
@@ -16,9 +16,8 @@ export const SubscribableServiceConstructor = () =>
         ctx.state.count.set((prev) => prev + n);
         return Ok({ result: ctx.state.count.get() });
       },
-    })
-    .defineProcedure("value", {
-      type: "subscription",
+    }),
+    value: Procedure.subscription({
       input: Type.Object({}),
       output: Type.Object({ result: Type.Number() }),
       errors: Type.Never(),
@@ -28,6 +27,6 @@ export const SubscribableServiceConstructor = () =>
         });
       },
     })
-    .finalize();
+  })
 
-export const serviceDefs = buildServiceDefs([SubscribableServiceConstructor()]);
+export const serviceDefs = { subscribable: SubscribableService };
