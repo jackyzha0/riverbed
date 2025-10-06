@@ -4,21 +4,22 @@
   "private": true,
   "scripts": {
     "dev": "npm run app & npm run server",
-    "server": "bun server/index.ts",
+    "server": "tsx server/index.ts",
     "app": "next dev --port 3000 --hostname 0.0.0.0",
     "build": "next build",
     "start": "next start --port 3000 --hostname 0.0.0.0",
     "lint": "next lint"
   },
   "dependencies": {
-    "@replit/river": "^0.16.1",
-    "@sinclair/typebox": "^0.32.8",
+    "@replit/river": "^0.209.6",
+    "@sinclair/typebox": "^0.34.41",
     "isomorphic-ws": "^5.0.0",
     "nanoid": "^5.0.6",
     "next": "^14.0.1",
     "react": "^18.2.0",
     "react-dom": "18.2.0",
     "tailwindcss": "^3.3.5",
+    "tsx": "^4.20.6",
     "ws": "^8.15.1",
     "wscat": "^5.2.0"
   },
@@ -27,7 +28,6 @@
     "@types/react": "^18.2.14",
     "@types/react-dom": "^18.2.6",
     "@types/ws": "^8.5.10",
-    "bun": "^1.0.29",
     "eslint": "^8.44.0",
     "eslint-config-next": "^14.0.1",
     "typescript": "^5.1.6"

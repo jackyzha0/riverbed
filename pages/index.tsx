@@ -6,7 +6,7 @@ import { type ServiceSurface } from "../server";
 import { WebSocketClientTransport } from "@replit/river/transport/ws/client";
 import { createClient } from "@replit/river";
 import WebSocket from "isomorphic-ws";
-import { bindLogger, setLevel } from "@replit/river/logging";
+import { stringLogger as log } from "@replit/river/logging";
 import { useEffect, useState } from "react";
 import { nanoid } from "nanoid";
 
@@ -15,14 +15,13 @@ const useRiverClient = (id: string) => {
     [],
   );
   useEffect(() => {
-    bindLogger(console.log);
-    setLevel("info");
     const websocketUrl = `wss://${window.location.hostname}:9000`;
     const transport = new WebSocketClientTransport(
       async () => new WebSocket(websocketUrl),
       id,
     );
 
+    transport.bindLogger(log);
     const client = createClient<ServiceSurface>(transport, "SERVER");
     setCtx(() => [client, transport]);
     return () => {
@@ -37,28 +36,25 @@ const RiverComponent = ({ id }: { id: string }) => {
   const [client, transport] = useRiverClient(id);
 
   useEffect(() => {
-    if (!client || !transport) return;
+    if (!transport) return;
 
-    let close: (() => void) | undefined = undefined;
-    transport.addEventListener("sessionStatus", async (evt) => {
-      if (evt.status === "connect") {
-        // setup state + listeners
-        setCount(0);
-        const [subscription, closeHandler] =
-          await client.subscribable.value.subscribe({});
-        close = closeHandler;
-        for await (const value of subscription) {
-          if (value.ok) {
-            setCount(value.payload.result);
-          }
+    const abortController = new AbortController();
+    (async function setup() {
+      if (!client) return;
+      
+      setCount(0);
+      const { resReadable } = client.subscribable.value.subscribe({});
+
+      for await (const value of resReadable) {
+        if (value.ok) {
+          setCount(value.payload.result);
         }
-      } else {
-        // cleanup stale listeners
-        close?.();
       }
-    });
+    })();
 
-    return close;
+    return () => {
+      abortController.abort();
+    }
   }, [client, transport]);
 
   // Client-side type checking from server-side definitions!

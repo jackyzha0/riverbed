@@ -1,7 +1,8 @@
-import { ServiceSchema, Procedure, Ok } from "@replit/river";
+import { createServiceSchema, Procedure, Ok } from "@replit/river";
 import { Type } from "@sinclair/typebox";
 import { Observable } from "./observable";
 
+const ServiceSchema = createServiceSchema();
 export const SubscribableService = ServiceSchema.define(
   {
     initializeState: () => ({
@@ -10,21 +11,22 @@ export const SubscribableService = ServiceSchema.define(
   },
   {
     add: Procedure.rpc({
-      input: Type.Object({ n: Type.Number() }),
-      output: Type.Object({ result: Type.Number() }),
-      errors: Type.Never(),
-      async handler(ctx, { n }) {
+      requestInit: Type.Object({ n: Type.Number() }),
+      responseData: Type.Object({ result: Type.Number() }),
+      responseError: Type.Never(),
+      async handler({ ctx, reqInit }) {
+        const { n } = reqInit;
         ctx.state.count.set((prev) => prev + n);
         return Ok({ result: ctx.state.count.get() });
       },
     }),
     value: Procedure.subscription({
-      input: Type.Object({}),
-      output: Type.Object({ result: Type.Number() }),
-      errors: Type.Never(),
-      async handler(ctx, _msg, returnStream) {
+      requestInit: Type.Object({}),
+      responseData: Type.Object({ result: Type.Number() }),
+      responseError: Type.Never(),
+      async handler({ ctx, resWritable }) {
         ctx.state.count.observe((count) => {
-          returnStream.push(Ok({ result: count }));
+          resWritable.write(Ok({ result: count }));
         });
       },
     }),
